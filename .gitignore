@@ -1,0 +1,10 @@
+#executable
+a.out
+pipex
+libft.a
+
+#objets
+*.o
+objs/
+objs_bonus/
+output.txt
