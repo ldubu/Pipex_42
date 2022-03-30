@@ -1,1 +1,2 @@
-# Pipex_42
+Pipex_42
+Un projet

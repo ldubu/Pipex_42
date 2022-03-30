@@ -2,7 +2,7 @@
 
 CC =		cc
 
-CFLAGS =	-Wall -Wextra
+CFLAGS =	-Wall -Wextra -Werror
 FSAN =		-g -fsanitize=address
 
 IFLAGS = 	-I includes -I libft/includes
@@ -25,7 +25,7 @@ _CYAN=	$'\033[36m
 _WHITE=	$'\033[37m
 _END= 	$'\033[37m
 
-SRC =	sources/main.c 
+SRC =	sources/test.c
 		
 OBJ = $(addprefix $(OBJS_PATH), $(SRC:.c=.o))
 
@@ -38,7 +38,7 @@ $(NAME): 	$(OBJ) $(HEADER) libft
 	@printf "%-15s ${_PURPLE}${_BOLD}${NAME}${_END}...\n" "Compiling"
 	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ) libft.a -o ${NAME}
 	@printf "\n${_GREEN}${_BOLD}[Pipex OK]${_END}\n"
-	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
+#	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
 	
 all: $(NAME)
 

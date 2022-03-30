@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:46:03 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/03/30 12:01:28 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/03/30 14:22:08 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,9 @@
 # include <sys/wait.h>
 # include <fcntl.h>
 
-int	__time_to_fork(int fd1, int fd2, int pi[2], char *envp[], char *argv[]);
-int	__child1(int fd1, int pi[2], char *envp[], char *argv[]);
-int	__child2(int fd2, int pi[2], char *envp[], char *argv[]);
+int	__time_to_fork(t_data *pipex);
+int	__child1(t_data *pipex);
+int	__child2(t_data *pipex);
+int	__cmd(t_data *pipex, int i);
 
 #endif
