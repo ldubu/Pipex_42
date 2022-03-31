@@ -25,7 +25,8 @@ _CYAN=	$'\033[36m
 _WHITE=	$'\033[37m
 _END= 	$'\033[37m
 
-SRC =	sources/test.c
+SRC =	sources/main.c \
+		sources/error.c
 		
 OBJ = $(addprefix $(OBJS_PATH), $(SRC:.c=.o))
 

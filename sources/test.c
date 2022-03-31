@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/30 15:27:52 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/03/30 15:40:55 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/03/31 13:36:35 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ int	__child2(t_data *pipex)
 	char	*buff = NULL;
 
 	i = 0;
+	buff = (char *) malloc(sizeof(char) * 13);
 	fprintf(stderr, "Child 2 here\n");
 	dup2(pipex->pipe[0], STDIN_FILENO);
 	dup2(pipex->fd2, STDOUT_FILENO);

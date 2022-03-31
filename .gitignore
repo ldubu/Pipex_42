@@ -8,3 +8,9 @@ libft.a
 objs/
 objs_bonus/
 output.txt
+
+#testeurs
+pipex-tester/
+
+#vscode de merde
+.vscode/
