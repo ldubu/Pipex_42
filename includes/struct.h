@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:48:32 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/03/30 14:03:40 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/01 10:49:13 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef struct s_data
 	int		*pipe;
 	char	**cmd_arg;
 	char	*cmd_path;
+	int		ret;
 }	t_data;
 
 #endif

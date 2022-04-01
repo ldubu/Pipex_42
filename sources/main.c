@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:52:31 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/03/31 16:55:50 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/01 16:24:50 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,14 @@ int	main(int argc, char *argv[], char *envp[])
 	t_data	pipex;
 
 	if (argc != 5)
-		return (__error("./pipex file1 cmd1 cmd2 file2"));
-	pipex = (t_data){open(argv[1], O_RDONLY), \
-	open(argv[4], O_TRUNC | O_CREAT | O_RDWR), \
-	argv, argc, envp, NULL, NULL, NULL};
-	if (pipex.fd1 == -1)
-		return (__error(strerror(errno)));
-	if (pipex.fd2 == -1)
-		return (__error(strerror(errno)));
+		return (__error("./pipex file1 cmd1 cmd2 file2", 2));
+	pipex = (t_data){0, 0, argv, argc, envp, NULL, NULL, NULL, 0};
 	pipex.pipe = (int *) malloc(sizeof(int) * 2);
 	if (pipex.pipe == NULL)
-		return (__error(strerror(errno)));
+		return (__error(strerror(errno), 0));
 	if (pipe(pipex.pipe) == -1)
-		return (__error(strerror(errno)));
-	if (__time_to_fork(&pipex) == 2)
-		return (2);
-	return (0);
+		return (__error(strerror(errno), 0));
+	return (__time_to_fork(&pipex));
 }
 
 int	__time_to_fork(t_data *pipex)
@@ -46,20 +38,16 @@ int	__time_to_fork(t_data *pipex)
 		return (__free_error(strerror(errno), pipex));
 	if (id1 == 0)
 	{
-		if (__child1(pipex) == 2)
-			return (2);
-		else if (__child1(pipex) == -1)
-			return (__free_error(strerror(errno), pipex));
+		pipex->ret = __child1(pipex);
+		return (__free_error(strerror(errno), pipex));
 	}
 	id2 = fork();
 	if (id2 == -1)
 		return (__free_error(strerror(errno), pipex));
 	if (id2 == 0)
 	{
-		if (__child2(pipex) == 2)
-			return (2);
-		else if (__child2(pipex) == -1)
-			return (__free_error(strerror(errno), pipex));
+		pipex->ret = __child2(pipex);
+		return (__free_error("deuxieme ici", pipex));
 	}
 	return (__free_parent(id1, id2, pipex));
 }
@@ -69,6 +57,9 @@ int	__child1(t_data *pipex)
 	int		i;
 
 	i = 0;
+	pipex->fd1 = open(pipex->argv[1], O_RDONLY);
+	if (pipex->fd1 == -1)
+		return (__free_error(strerror(errno), pipex));
 	dup2(pipex->pipe[1], STDOUT_FILENO);
 	close(pipex->pipe[0]);
 	dup2(pipex->fd1, STDIN_FILENO);
@@ -89,7 +80,9 @@ int	__child2(t_data *pipex)
 	int		i;
 
 	i = 0;
-	fprintf(stderr, "Child 2 here\n");
+	pipex->fd2 = open(pipex->argv[4], O_TRUNC | O_CREAT | O_RDWR, 777);
+	if (pipex->fd2 == -1)
+		return (__error("first error here", 2));
 	dup2(pipex->pipe[0], STDIN_FILENO);
 	close(pipex->pipe[1]);
 	dup2(pipex->fd2, STDOUT_FILENO);
@@ -127,11 +120,16 @@ int	__cmd(t_data *pipex, int i)
 	{
 		tmp = __strjoin(split[j], "/");
 		pipex->cmd_path = __strjoin(tmp, pipex->cmd_arg[0]);
+		fprintf(stderr, "path = %s\n", pipex->cmd_path);
+		fprintf(stderr, "return of access %d\n", access(pipex->cmd_path, X_OK));
 		if (access(pipex->cmd_path, X_OK) == 0)
+		{
+			fprintf(stderr, "Have access\n");
 			return (execve(pipex->cmd_path, pipex->cmd_arg, pipex->envp));
+		}
 		free (split[j++]);
 		free (pipex->cmd_path);
 		free (tmp);
 	}
-	return (__free_error("Cmd binaries was not found", pipex));
+	return (__free_error("Command not found", pipex));
 }
