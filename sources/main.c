@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:52:31 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/01 16:24:50 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/04 14:57:06 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ int	__time_to_fork(t_data *pipex)
 	if (id2 == 0)
 	{
 		pipex->ret = __child2(pipex);
-		return (__free_error("deuxieme ici", pipex));
+		return (__free_error(strerror(errno), pipex));
 	}
 	return (__free_parent(id1, id2, pipex));
 }
@@ -59,7 +59,7 @@ int	__child1(t_data *pipex)
 	i = 0;
 	pipex->fd1 = open(pipex->argv[1], O_RDONLY);
 	if (pipex->fd1 == -1)
-		return (__free_error(strerror(errno), pipex));
+		return (errno);
 	dup2(pipex->pipe[1], STDOUT_FILENO);
 	close(pipex->pipe[0]);
 	dup2(pipex->fd1, STDIN_FILENO);
@@ -69,7 +69,11 @@ int	__child1(t_data *pipex)
 	while (pipex->envp[i] != NULL)
 	{
 		if (__strnstr(pipex->envp[i], "PATH", 4) != NULL)
+		{
+			if (access(pipex->cmd_arg[0], X_OK) == 0)
+				return (execve(pipex->cmd_path, pipex->cmd_arg, pipex->envp));
 			return (__cmd(pipex, i));
+		}
 		i++;
 	}
 	return (__free_error("PATH was not found", pipex));
@@ -80,9 +84,9 @@ int	__child2(t_data *pipex)
 	int		i;
 
 	i = 0;
-	pipex->fd2 = open(pipex->argv[4], O_TRUNC | O_CREAT | O_RDWR, 777);
+	pipex->fd2 = open(pipex->argv[4], O_TRUNC | O_CREAT | O_RDWR, S_IRWXU);
 	if (pipex->fd2 == -1)
-		return (__error("first error here", 2));
+		return (errno);
 	dup2(pipex->pipe[0], STDIN_FILENO);
 	close(pipex->pipe[1]);
 	dup2(pipex->fd2, STDOUT_FILENO);
@@ -92,7 +96,11 @@ int	__child2(t_data *pipex)
 	while (pipex->envp[i] != NULL)
 	{
 		if (__strnstr(pipex->envp[i], "PATH", 4) != NULL)
+		{
+			if (access(pipex->cmd_arg[0], X_OK) == 0)
+				return (execve(pipex->cmd_path, pipex->cmd_arg, pipex->envp));
 			return (__cmd(pipex, i));
+		}
 		i++;
 	}
 	return (__free_error("PATH was not found", pipex));
@@ -120,16 +128,13 @@ int	__cmd(t_data *pipex, int i)
 	{
 		tmp = __strjoin(split[j], "/");
 		pipex->cmd_path = __strjoin(tmp, pipex->cmd_arg[0]);
-		fprintf(stderr, "path = %s\n", pipex->cmd_path);
-		fprintf(stderr, "return of access %d\n", access(pipex->cmd_path, X_OK));
 		if (access(pipex->cmd_path, X_OK) == 0)
-		{
-			fprintf(stderr, "Have access\n");
 			return (execve(pipex->cmd_path, pipex->cmd_arg, pipex->envp));
-		}
 		free (split[j++]);
 		free (pipex->cmd_path);
 		free (tmp);
 	}
-	return (__free_error("Command not found", pipex));
+	__free_split(pipex->cmd_arg, 0);
+	__free_split(split, j);
+	return (__error("Command not found", 127));
 }

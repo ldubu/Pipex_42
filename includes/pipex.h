@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:46:03 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/01 10:51:27 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/04 13:32:16 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <string.h>
 # include <stdlib.h>
 # include <sys/types.h>
+# include <sys/stat.h>
 # include <sys/wait.h>
 # include <fcntl.h>
 
@@ -32,5 +33,6 @@ int		__error(char *str, int err);
 int		__free_error(char *str, t_data *pipex);
 void	__free_ok(t_data *pipex);
 int		__free_parent(int id1, int id2, t_data *pipex);
+void	__free_split(char **split, int i);
 
 #endif
