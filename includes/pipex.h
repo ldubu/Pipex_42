@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:46:03 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/04 13:32:16 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/06 16:05:05 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,9 @@ int		__free_error(char *str, t_data *pipex);
 void	__free_ok(t_data *pipex);
 int		__free_parent(int id1, int id2, t_data *pipex);
 void	__free_split(char **split, int i);
+int		__child(t_data_b *pipex, int i);
+void	__bonus_free_ok(t_data_b *pipex);
+int		__bonus_free_error(char *str, t_data_b *pipex);
+int		__cmd_bonus(t_data_b *pipex, int i);
 
 #endif

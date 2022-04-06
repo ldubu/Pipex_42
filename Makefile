@@ -2,7 +2,7 @@
 
 CC =		cc
 
-CFLAGS =	-Wall -Wextra -Werror
+CFLAGS =	-Wall -Wextra # -Werror
 FSAN =		-g -fsanitize=address
 
 IFLAGS = 	-I includes -I libft/includes
@@ -27,8 +27,11 @@ _END= 	$'\033[37m
 
 SRC =	sources/main.c \
 		sources/error.c
-		
+SRC_B =	sources_bonus/main_bonus.c \
+		sources_bonus/error_bonus.c \
+		sources/error.c
 OBJ = $(addprefix $(OBJS_PATH), $(SRC:.c=.o))
+OBJ_BONUS = $(addprefix $(OBJS_PATH), $(SRC_B:.c=.o))
 
 $(OBJS_PATH)%.o: %.c $(HEADER)
 	@mkdir -p $(dir $@)
@@ -40,6 +43,12 @@ $(NAME): 	$(OBJ) $(HEADER) libft
 	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ) libft.a -o ${NAME}
 	@printf "\n${_GREEN}${_BOLD}[Pipex OK]${_END}\n"
 #	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
+
+bonus : $(OBJ_BONUS) $(HEADER) libft
+	@printf "%-15s ${_PURPLE}${_BOLD}${NAME}${_END}...\n" "Compiling"
+	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ_BONUS) libft.a -o pipex_bonus
+	@printf "\n${_GREEN}${_BOLD}[Pipex OK]${_END}\n"
+	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
 	
 all: $(NAME)
 

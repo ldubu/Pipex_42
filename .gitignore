@@ -1,6 +1,6 @@
 #executable
 a.out
-pipex
+pipex*
 libft.a
 
 #objets
