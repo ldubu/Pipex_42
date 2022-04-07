@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/04 14:57:36 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/06 16:04:57 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/07 15:29:33 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,41 +15,98 @@
 int	main(int argc, char *argv[], char *envp[])
 {
 	t_data_b	pipex;
-	int		i;
-	int	 status;
 
-	i = 2;
+	pipex = (t_data_b){0, 0, argv, argc, argc - 3, envp, NULL, NULL, NULL, \
+	NULL, NULL, 0};
 	if (argc < 5)
-		return (__error("./pipex file1 cmd1 [cmd...] cmdn file2", 2));
-	pipex = (t_data_b){0, 0, argv, argc, envp, NULL, NULL, NULL, NULL, 0};
-	pipex.pipe = (int **) malloc(sizeof(int *) * (argc - 3));
-	pipex.id = (int *) malloc(sizeof(int) * (argc - 2));
-	if (pipex.pipe == NULL)
-		return (__error(strerror(errno), errno));
-	while (i < argc - 1)
+		return (__error("./pipex file1 cmd1 [...] cmdn file2", 2));
+	if (__strncmp(argv[1], "here_doc", 9) == 0)
 	{
-		pipex.pipe[i - 2] = (int *) malloc(sizeof(int) * 2);
-		if (pipex.pipe[i - 2] == NULL)
+		if (argc < 6)
+			return (__error("./pipex here_doc LIMITER cmd cmd1 [...] cmdn file"\
+			, 2));
+		pipex.here_doc = argv[2];
+		pipex.cmd_nbr--;
+	}
+	__time_to_pipe(&pipex);
+	return (0);
+}
+
+int	__time_to_pipe(t_data_b *pipex)
+{
+	int			i;
+	int			status;
+	int			*pip;
+
+	pip = NULL;
+	i = 0;
+	if (pipex->here_doc != NULL)
+		pip = __get_instruction(pipex);
+	pipex->pipe = (int **) malloc(sizeof(int *) * (pipex->cmd_nbr - 1));
+	if (pipex->pipe == NULL)
+		return (__error(strerror(errno), errno));
+	pipex->id = (int *) malloc(sizeof(int) * (pipex->cmd_nbr));
+	if (pipex->id == NULL)
+	{
+		free(pipex->pipe);
+		return (__error(strerror(errno), errno));
+	}
+	while (i < pipex->cmd_nbr - 1)
+	{
+		pipex->pipe[i] = (int *) malloc(sizeof(int) * 2);
+		if (pipex->pipe[i] == NULL)
 			return (__error(strerror(errno), errno));
-		pipex.id[i - 2] = fork();
-		if (pipex.id[i - 2] == 0)
+		pipe(pipex->pipe[i]);
+		i++;
+	}
+	i = 0;
+	while (i < pipex->cmd_nbr)
+	{
+		printf("i = %d, cmd_nbr = %d\n", i, pipex->cmd_nbr);
+		pipex->id[i] = fork();
+		if (pipex->id[i] == 0)
 		{
-			__child(&pipex, i - 2);
-			i = argc;
+			__child(pipex, i, pip);
+			fprintf(stderr, "sort pas par la\n");
+			i = pipex->argc;
 		}
 		i++;
 	}
 	i = 0;
-	while (i < argc - 3)
+	while (i < pipex->cmd_nbr)
 	{
-		waitpid(pipex.id[i], &status, 0);
+		fprintf(stderr, "enter wait n %d\n", i);
+		waitpid(pipex->id[i], &status, 0);
 		i++;
 	}
 	return (0);
 }
 
-int	__child(t_data_b *pipex, int i)
+int	*__get_instruction(t_data_b *pipex)
 {
+	char	*line;
+	int		*pip;
+
+	pip = (int *) malloc(sizeof(int) * 2);
+	pipe(pip);
+	line = __get_next_line(STDOUT_FILENO);
+	while (__strncmp(line, pipex->here_doc, __strlen(pipex->here_doc)) != 0)
+	{
+		__putstr_fd(line, pip[1]);
+		__putstr_fd("\n", pip[1]);
+		free(line);
+		line = __get_next_line(STDOUT_FILENO);
+	}
+	return (pip);
+}
+
+int	__child(t_data_b *pipex, int i, int *pip)
+{
+	int	j;
+
+	j = 0;
+	(void) pip;
+	fprintf(stderr, "Child n %d\n", i);
 	if (i == 0)
 	{
 		pipex->fd1 = open(pipex->argv[1], O_RDONLY);
@@ -59,33 +116,40 @@ int	__child(t_data_b *pipex, int i)
 	}
 	else
 	{
+		fprintf(stderr, "Child %d pipe %d in\n", i, i - 1);
 		dup2(pipex->pipe[i - 1][0], STDIN_FILENO);
 		close(pipex->pipe[i - 1][1]);
 	}
-	if (i == pipex->argc -1)
+	if (i == pipex->cmd_nbr -1)
 	{
-		pipex->fd2 = open(pipex->argv[4], O_TRUNC | O_CREAT | O_RDWR, S_IRWXU);
+		pipex->fd2 = open(pipex->argv[pipex->cmd_nbr + 2], O_TRUNC \
+		| O_CREAT | O_RDWR, S_IRWXU);
 		if (pipex->fd2 == -1)
 			return (errno);
 		dup2(pipex->fd2, STDOUT_FILENO);
 	}
 	else
 	{
+		fprintf(stderr, "Child %d pipe %d out\n", i, i);
 		dup2(pipex->pipe[i][1], STDOUT_FILENO);
 		close(pipex->pipe[i][0]);
 	}
-	pipex->cmd_arg = __split(pipex->argv[2], ' ');
+	pipex->cmd_arg = __split(pipex->argv[i + 2], ' ');
+	fprintf(stderr, "Child n %d cmd = %s\n", i, pipex->cmd_arg[0]);
+	/*char **buff = NULL;
+	read(0, &buff, 7);
+	write(1, &buff, 7);*/
 	if (pipex->cmd_arg == NULL)
 		return (__bonus_free_error("Split fail", pipex));
-	while (pipex->envp[i] != NULL)
+	while (pipex->envp[j] != NULL)
 	{
-		if (__strnstr(pipex->envp[i], "PATH", 4) != NULL)
+		if (__strnstr(pipex->envp[j], "PATH", 4) != NULL)
 		{
 			if (access(pipex->cmd_arg[0], X_OK) == 0)
 				return (execve(pipex->cmd_path, pipex->cmd_arg, pipex->envp));
-			return (__cmd_bonus(pipex, i));
+			return (__cmd_bonus(pipex, j));
 		}
-		i++;
+		j++;
 	}
 	return (__bonus_free_error("PATH was not found", pipex));
 }
@@ -102,6 +166,7 @@ int	__cmd_bonus(t_data_b *pipex, int i)
 	char	*tmp;
 	char	**split;
 
+	fprintf(stderr, "enter cmd\n");
 	tmp = __strdup(&(pipex->envp[i][5]));
 	if (tmp == NULL)
 		return (__bonus_free_error("Strdup fail", pipex));
@@ -112,6 +177,7 @@ int	__cmd_bonus(t_data_b *pipex, int i)
 	j = 0;
 	while (split[j] != NULL)
 	{
+		//fprintf(stderr, "enter while\n");
 		tmp = __strjoin(split[j], "/");
 		pipex->cmd_path = __strjoin(tmp, pipex->cmd_arg[0]);
 		if (access(pipex->cmd_path, X_OK) == 0)
@@ -122,5 +188,6 @@ int	__cmd_bonus(t_data_b *pipex, int i)
 	}
 	__free_split(pipex->cmd_arg, 0);
 	__free_split(split, j);
+	fprintf(stderr, ".%s.\n", pipex->cmd_arg[0]);
 	return (__error("Command not found", 127));
 }
