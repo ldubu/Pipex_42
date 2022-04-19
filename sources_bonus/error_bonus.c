@@ -17,17 +17,10 @@ int	__bonus_free_error(char *str, t_data_b *pipex)
 	int i;
 
 	i = 2;
-	while (i < pipex->argc -1)
+	while (i < (pipex->cmd_nbr - 1) * 2)
 	{
-		if (pipex->pipe[i - 2][1] != -1)
-			close(pipex->pipe[i - 2][1]);
-		if (pipex->pipe[i - 2][0] != -1)
-			close(pipex->pipe[i - 2][0]);
-		if (pipex->pipe)
-		{
-			free(pipex->pipe);
-			pipex->pipe = NULL;
-		}
+		if (pipex->pipe[i] != -1)
+			close(pipex->pipe[i]);
 		i++;
 	}
 	if (pipex->fd1 != -1)
@@ -44,15 +37,8 @@ void	__bonus_free_ok(t_data_b *pipex)
 	i = 2;
 	while (i < pipex->argc -1)
 	{
-		if (pipex->pipe[i - 2][1] != -1)
-			close(pipex->pipe[i - 2][1]);
-		if (pipex->pipe[i - 2][0] != -1)
-			close(pipex->pipe[i - 2][0]);
-		if (pipex->pipe)
-		{
-			free(pipex->pipe);
-			pipex->pipe = NULL;
-		}
+		if (pipex->pipe[i] != -1)
+			close(pipex->pipe[i]);
 		i++;
 	}
 	if (pipex->fd1 != -1)

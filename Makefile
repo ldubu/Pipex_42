@@ -27,8 +27,7 @@ _END= 	$'\033[37m
 
 SRC =	sources/main.c \
 		sources/error.c
-SRC_B =	sources_bonus/main_bonus.c \
-		sources_bonus/error_bonus.c \
+SRC_B =	sources_bonus/new.c \
 		sources/error.c
 OBJ = $(addprefix $(OBJS_PATH), $(SRC:.c=.o))
 OBJ_BONUS = $(addprefix $(OBJS_PATH), $(SRC_B:.c=.o))
@@ -64,7 +63,7 @@ clean:
 	@$(RM) $(OBJS_PATH) 
 
 fclean:		clean
-	@$(RM) $(NAME)  libft.a
+	@$(RM) $(NAME)  libft.a pipex_bonus
 
 re: fclean all
 

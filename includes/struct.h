@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 14:48:32 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/07 12:58:10 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/19 15:32:49 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,22 @@ typedef struct s_data_b
 {
 	int		fd1;
 	int		fd2;
-	char	**argv;
 	int		argc;
 	int		cmd_nbr;
+	int		pipe_nbr;
+	int		here_doc;
+	int		ret;
+	int		i;
+	int		id;
+	int		*pipe;
+	char	**argv;
 	char	**envp;
-	int		**pipe;
 	char	**cmd_arg;
 	char	*cmd_path;
-	int		*id;
-	char	*here_doc;
-	int		ret;
-}	t_data_b;
+	char	*limiter;
+	char	*env_path;
+	char	**cmd_paths;
+	char	*cmd;
+	}	t_data_b;
 
 #endif
