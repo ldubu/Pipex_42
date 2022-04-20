@@ -2,7 +2,7 @@
 
 CC =		cc
 
-CFLAGS =	-Wall -Wextra # -Werror
+CFLAGS =	-Wall -Wextra -Werror
 FSAN =		-g -fsanitize=address
 
 IFLAGS = 	-I includes -I libft/includes
@@ -25,12 +25,11 @@ _CYAN=	$'\033[36m
 _WHITE=	$'\033[37m
 _END= 	$'\033[37m
 
-SRC =	sources/main.c \
-		sources/error.c
-SRC_B =	sources_bonus/new.c \
-		sources/error.c
+SRC =	sources/childs.c \
+		sources/free.c \
+		sources/here_docs.c \
+		sources/main.c
 OBJ = $(addprefix $(OBJS_PATH), $(SRC:.c=.o))
-OBJ_BONUS = $(addprefix $(OBJS_PATH), $(SRC_B:.c=.o))
 
 $(OBJS_PATH)%.o: %.c $(HEADER)
 	@mkdir -p $(dir $@)
@@ -43,11 +42,11 @@ $(NAME): 	$(OBJ) $(HEADER) libft
 	@printf "\n${_GREEN}${_BOLD}[Pipex OK]${_END}\n"
 #	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
 
-bonus : $(OBJ_BONUS) $(HEADER) libft
+bonus : $(OBJ) $(HEADER) libft
 	@printf "%-15s ${_PURPLE}${_BOLD}${NAME}${_END}...\n" "Compiling"
 	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ_BONUS) libft.a -o pipex_bonus
-	@printf "\n${_GREEN}${_BOLD}[Pipex OK]${_END}\n"
-	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
+	@printf "\n${_GREEN}${_BOLD}[Pipex_bonus OK]${_END}\n"
+#	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
 	
 all: $(NAME)
 
