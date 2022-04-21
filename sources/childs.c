@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/20 16:24:26 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/20 16:39:57 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/21 11:36:40 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static char	*__cmd(char **paths, char *cmd, t_data_b *pipex)
 			__error("Strjoin fail", pipex);
 		}
 		free(tmp);
-		if (access(command, 0) == 0)
+		if (access(command, X_OK) == 0)
 			return (command);
 		free(command);
 		i++;
@@ -62,11 +62,11 @@ void	__child_bonus(t_data_b pipex)
 		if (pipex.cmd_arg == NULL)
 			__error("Split fail", &pipex);
 		if (access(pipex.cmd_arg[0], X_OK) == 0)
-			execve(pipex.cmd_path, pipex.cmd_arg, pipex.envp);
+			execve(pipex.cmd_arg[0], pipex.cmd_arg, pipex.envp);
 		pipex.cmd = __cmd(pipex.cmd_paths, pipex.cmd_arg[0], &pipex);
 		if (!pipex.cmd)
 		{
-			__error(strerror(errno), &pipex);
+			__error("command not found", &pipex);
 			exit(1);
 		}
 		execve(pipex.cmd, pipex.cmd_arg, pipex.envp);

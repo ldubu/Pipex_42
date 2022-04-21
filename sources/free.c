@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/20 16:27:17 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/20 16:42:35 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/21 11:37:48 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,13 +72,13 @@ int	__error(char *str, t_data_b *pipex)
 {
 	__free_close(pipex);
 	ft_printf("%s\n", str);
-	exit(0);
-	return (0);
+	exit(errno);
+	return (errno);
 }
 
 void	__free_pip(int *pip)
 {
 	free(pip);
 	__putstr_fd("\n", STDOUT_FILENO);
-	exit(0);
+	exit(errno);
 }

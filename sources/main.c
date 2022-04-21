@@ -6,7 +6,7 @@
 /*   By: ldubuche <laura.dubuche@gmail.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/20 16:25:08 by ldubuche          #+#    #+#             */
-/*   Updated: 2022/04/20 16:51:19 by ldubuche         ###   ########.fr       */
+/*   Updated: 2022/04/21 11:18:11 by ldubuche         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ int	main(int argc, char *argv[], char *envp[])
 {
 	t_data_b	pipex;	
 
-	if (argc < 5)
-		return (__error("./pipex file1 cmd1 cmd2 file2", &pipex));
 	pipex = (t_data_b){-1, -1, argc, argc - 3, 2 * (argc - 4), 0, 0, -1, 0, \
 	NULL, argv, envp, NULL, NULL, NULL, NULL, NULL, NULL};
+	if (argc < 5)
+		return (__error("./pipex file1 cmd1 cmd2 file2", &pipex));
 	__get_file(&pipex);
 	pipex.pipe = (int *)malloc(sizeof(int) * pipex.pipe_nbr);
 	if (!pipex.pipe)
@@ -71,7 +71,7 @@ char	*__path(t_data_b *pipex)
 	while (pipex->envp[i] != NULL)
 	{
 		if (__strnstr(pipex->envp[i], "PATH", 4) != NULL)
-			return (pipex->envp[i]);
+			return (pipex->envp[i] + 5);
 		i++;
 	}
 	return (NULL);

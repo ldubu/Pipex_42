@@ -40,13 +40,11 @@ $(NAME): 	$(OBJ) $(HEADER) libft
 	@printf "%-15s ${_PURPLE}${_BOLD}${NAME}${_END}...\n" "Compiling"
 	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ) libft.a -o ${NAME}
 	@printf "\n${_GREEN}${_BOLD}[Pipex OK]${_END}\n"
-#	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
 
 bonus : $(OBJ) $(HEADER) libft
 	@printf "%-15s ${_PURPLE}${_BOLD}${NAME}${_END}...\n" "Compiling"
-	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ_BONUS) libft.a -o pipex_bonus
+	@$(CC) $(CFLAGS) $(IFLAGS) $(OBJ) libft.a -o pipex_bonus
 	@printf "\n${_GREEN}${_BOLD}[Pipex_bonus OK]${_END}\n"
-#	@printf "\n${_RED}-Werror est enleve!!!${_END}\n"
 	
 all: $(NAME)
 
